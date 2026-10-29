@@ -154,7 +154,7 @@
                 </div>
                 <div class="flex items-end">
                     <button onclick="openAssignModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus-circle"></i> + เพิ่มงานใหม่ (คอลัมน์)
+                        <i class="fa-solid fa-plus-circle"></i> + เพิ่มภาระงานใหม่
                     </button>
                 </div>
             </div>
@@ -163,8 +163,8 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b bg-slate-100 font-bold text-slate-700 flex justify-between items-center">
                     <span class="flex items-center gap-2"><i class="fa-solid fa-table text-indigo-600 text-lg"></i> ตารางสรุปการส่งงานประจำวิชา</span>
-                    <button onclick="syncDataToGoogleSheet()" class="text-xs bg-indigo-600 text-white hover:bg-indigo-700 px-3.5 py-2 rounded-xl shadow font-medium transition">
-                        <i class="fa-solid fa-sync mr-1"></i> บันทึกลง Google Sheet
+                    <button onclick="syncDataToGoogleSheet()" class="text-xs bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2.5 rounded-xl shadow font-semibold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกลง Google Sheet
                     </button>
                 </div>
 
@@ -292,21 +292,21 @@
         </div>
     </div>
 
-    <!-- Modal สั่งงานใหม่ -->
+    <!-- Modal เพิ่มภาระงานใหม่ -->
     <div id="assign-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-            <h3 class="text-xl font-bold text-slate-800">สั่งงานใหม่ (เพิ่มคอลัมน์)</h3>
+            <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-plus-circle text-emerald-600 mr-1"></i> เพิ่มภาระงานใหม่ (สร้างคอลัมน์)</h3>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">ชื่องาน / ภาระงาน (แถวบน)</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">ชื่องาน / ภาระงาน (แสดงแถวบน)</label>
                 <input type="text" id="modal-assign-name" placeholder="เช่น งานสมุด1, แบบฝึกหน่วย1" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">รายละเอียดงาน (แถวล่าง)</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">รายละเอียดงาน (แสดงแถวล่าง)</label>
                 <input type="text" id="modal-assign-detail" placeholder="เช่น มาตราตัวสะกด, หน้า 2-24" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm">
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeAssignModal()" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-sm">ยกเลิก</button>
-                <button onclick="confirmAssignWork()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700">เพิ่มงานในตาราง</button>
+                <button onclick="confirmAssignWork()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 shadow">เพิ่มงานลงในตาราง</button>
             </div>
         </div>
     </div>
@@ -452,7 +452,7 @@
             renderMatrixTable();
         }
 
-        // MATRIX TABLE RENDER LOGIC
+        // MATRIX TABLE RENDER LOGIC (WITH DELETE COLUMN BUTTON)
         function renderMatrixTable() {
             const subClassVal = document.getElementById('teacher-class-select').value;
             const thead = document.getElementById('matrix-thead');
@@ -469,19 +469,30 @@
             const cols = store.taskColumns.filter(c => c.subject === subject && c.className === className);
             const students = store.students.filter(s => s.className === className);
 
-            // 1. Render Headers (2 Rows)
+            // 1. Render Headers (2 Rows with Delete Button)
             let headerRow1 = `<tr class="border-b bg-slate-100 text-slate-800 font-bold border-black">
                 <th class="p-3 border-r border-slate-400 w-64 text-left">ชื่อ - นามสกุล / งาน</th>`;
             let headerRow2 = `<tr class="border-b bg-slate-50 text-slate-700 font-bold border-black">
                 <th class="p-3 border-r border-slate-400 text-left">รายละเอียด</th>`;
 
             if (cols.length === 0) {
-                headerRow1 += `<th class="p-3 text-slate-400 font-normal">ยังไม่มีงาน (กดปุ่มเพิ่มงานใหม่ด้านบน)</th>`;
+                headerRow1 += `<th class="p-3 text-slate-400 font-normal">ยังไม่มีงาน (กดปุ่มเพิ่มภาระงานใหม่ด้านบน)</th>`;
                 headerRow2 += `<th class="p-3"></th>`;
             } else {
                 cols.forEach(c => {
-                    headerRow1 += `<th class="p-3 border-r border-slate-300 text-center min-w-[130px]">${c.name}</th>`;
-                    headerRow2 += `<th class="p-3 border-r border-slate-300 text-center text-xs font-medium text-slate-600 min-w-[130px]">${c.detail}</th>`;
+                    headerRow1 += `
+                        <th class="p-3 border-r border-slate-300 text-center min-w-[140px] relative group">
+                            <div>${c.name}</div>
+                        </th>`;
+                    headerRow2 += `
+                        <th class="p-3 border-r border-slate-300 text-center text-xs font-medium text-slate-600 min-w-[140px]">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <span>${c.detail}</span>
+                                <button onclick="deleteTaskColumn('${c.id}')" title="ลบงานนี้" class="text-rose-500 hover:text-rose-700 text-xs px-1.5 py-0.5 rounded hover:bg-rose-50 transition" style="cursor: pointer;">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </th>`;
                 });
             }
 
@@ -506,6 +517,7 @@
                         let assign = store.assignments.find(a => a.studentId === s.studentId && a.columnId === c.id);
                         let statusVal = assign ? assign.status : 'submitted';
 
+                        // Colors: ส่ง (เขียว), งานไม่เรียบร้อย (ส้ม/แอมเบอร์), ยังไม่ส่ง (แดง)
                         let selectBg = 'bg-emerald-100 border-emerald-300 text-emerald-800 font-semibold';
                         if (statusVal === 'incomplete') selectBg = 'bg-amber-100 border-amber-300 text-amber-800 font-semibold';
                         if (statusVal === 'pending') selectBg = 'bg-rose-100 border-rose-300 text-rose-800 font-semibold';
@@ -514,7 +526,7 @@
                             <td class="p-2 border-r border-slate-300 text-center">
                                 <select onchange="updateMatrixStatus('${s.studentId}', '${c.id}', this.value)" class="w-full text-xs border rounded-full px-3 py-1.5 focus:outline-none cursor-pointer ${selectBg}">
                                     <option value="submitted" ${statusVal === 'submitted' ? 'selected' : ''}>ส่ง</option>
-                                    <option value="incomplete" ${statusVal === 'incomplete' ? 'selected' : ''}>ส (ไม่เรียบร้อย)</option>
+                                    <option value="incomplete" ${statusVal === 'incomplete' ? 'selected' : ''}>งานไม่เรียบร้อย</option>
                                     <option value="pending" ${statusVal === 'pending' ? 'selected' : ''}>ยังไม่ส่ง</option>
                                 </select>
                             </td>
@@ -547,6 +559,14 @@
             renderMatrixTable();
         }
 
+        function deleteTaskColumn(columnId) {
+            if (confirm("ต้องการลบภาระงาน (คอลัมน์นี้) รวมทั้งข้อมูลการส่งงานของนักเรียนทั้งหมดใช่หรือไม่?")) {
+                store.taskColumns = store.taskColumns.filter(c => c.id !== columnId);
+                store.assignments = store.assignments.filter(a => a.columnId !== columnId);
+                renderMatrixTable();
+            }
+        }
+
         function openAssignModal() { document.getElementById('assign-modal').classList.remove('hidden'); }
         function closeAssignModal() { document.getElementById('assign-modal').classList.add('hidden'); }
 
@@ -567,7 +587,7 @@
             document.getElementById('modal-assign-name').value = '';
             document.getElementById('modal-assign-detail').value = '';
             renderMatrixTable();
-            alert(`เพิ่มคอลัมน์งาน "${name}" เรียบร้อยแล้ว`);
+            alert(`เพิ่มภาระงาน "${name}" เรียบร้อยแล้ว`);
         }
 
         // HOMEROOM & STUDENT SEARCH LOGIC
